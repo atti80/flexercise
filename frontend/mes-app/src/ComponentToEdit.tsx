@@ -8,7 +8,8 @@ import {
     EditRegular,
     MoreHorizontalRegular,
     AddRegular,
-    CameraRegular
+    CameraRegular,
+    DeleteRegular
 } from "@fluentui/react-icons";
 import {
     TableBody,
@@ -31,7 +32,12 @@ import {
     Input,
     makeStyles,
     Combobox,
-    Option
+    Option,
+    Menu,
+    MenuTrigger,
+    MenuList,
+    MenuItem,
+    MenuPopover,
 } from "@fluentui/react-components";
 import type { JSXElement } from "@fluentui/react-components";
 import TimeAgo from 'javascript-time-ago';
@@ -84,7 +90,8 @@ export const ComponentToEdit = (): JSXElement => {
     const styles = useStyles(); 
 
     const [items, setItems] = useState<Product[]>([]);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [product, setProduct] = useState<Product | null>(null);
 
     const [name, setName] = useState('');
@@ -107,7 +114,7 @@ export const ComponentToEdit = (): JSXElement => {
         setProductType(ProductType.Phone);
         setDescription('');
         setStatus(ProductStatus.InProgress);
-        setIsDialogOpen(true);
+        setIsProductDialogOpen(true);
     }
 
     const openEditProductDialog = (product: Product) => {
@@ -116,13 +123,13 @@ export const ComponentToEdit = (): JSXElement => {
         setProductType(product.productType);
         setDescription(product.description);
         setStatus(product.status);
-        setIsDialogOpen(true);
+        setIsProductDialogOpen(true);
     }
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
        
-        await fetch('http://localhost:5000/api/products' + (product ? `/${product.id}` : ''), {
+        const response = await fetch('http://localhost:5000/api/products' + (product ? `/${product.id}` : ''), {
             method: product ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -130,9 +137,26 @@ export const ComponentToEdit = (): JSXElement => {
             body: JSON.stringify({ name, productType, description, status }),
         });
 
+        if (!response.ok) {
+            console.error(`Failed to ${product ? 'update' : 'create'} product`);
+            return;
+        }
+
         setProduct(null);
-        setIsDialogOpen(false);
-        fetchData();
+        setIsProductDialogOpen(false);
+        await fetchData();
+    }
+
+    const handleDelete = async (productId: number) => {
+        const response = await fetch(`http://localhost:5000/api/products/${productId}`, { method: 'DELETE' });
+
+        if (!response.ok) {
+            console.error('Failed to delete product');
+            return;
+        }
+
+        setIsDeleteDialogOpen(false);
+        await fetchData();
     }
 
     return (
@@ -148,7 +172,7 @@ export const ComponentToEdit = (): JSXElement => {
                     <Button icon={<AddRegular />} onClick={() => openCreateProductDialog()}>
                         Add
                     </Button>
-                    <Dialog open={isDialogOpen} onOpenChange={(e, data) => setIsDialogOpen(data.open)}>
+                    <Dialog open={isProductDialogOpen} onOpenChange={(e, data) => setIsProductDialogOpen(data.open)}>
                         <DialogSurface aria-describedby={undefined}>
                             <form onSubmit={handleSubmit}>
                             <DialogBody>
@@ -236,18 +260,40 @@ export const ComponentToEdit = (): JSXElement => {
                                     {product.name}
                                 </TableCellLayout>
                                 <TableCellActions>
-                                    <Button
-                                        icon={<EditRegular />}
-                                        appearance="subtle"
-                                        aria-label="Edit"
-                                        onClick={() => { openEditProductDialog(product); }}
-                                    />
-                                    <Button
-                                        icon={<MoreHorizontalRegular />}
-                                        appearance="subtle"
-                                        aria-label="More actions"
-                                    />
+                                    <Menu>
+                                        <MenuTrigger disableButtonEnhancement>
+                                            <Button
+                                                icon={<MoreHorizontalRegular />}
+                                                appearance="subtle"
+                                                aria-label="More actions"
+                                            />
+                                        </MenuTrigger>
+                                        <MenuPopover>
+                                            <MenuList>
+                                                <MenuItem icon={<EditRegular />} onClick={() => openEditProductDialog(product)}>Edit</MenuItem>
+                                                <MenuItem icon={<DeleteRegular />} onClick={() => setIsDeleteDialogOpen(true)}>Delete</MenuItem>
+                                            </MenuList>
+                                        </MenuPopover>
+                                    </Menu>
                                 </TableCellActions>
+                                <Dialog open={isDeleteDialogOpen} onOpenChange={(e, data) => setIsDeleteDialogOpen(data.open)}>
+                                    <DialogSurface>
+                                        <DialogBody>
+                                        <DialogTitle>
+                                            Delete Product
+                                        </DialogTitle>
+                                        <DialogContent>
+                                            Are you sure you want to delete this product?
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <DialogTrigger disableButtonEnhancement>
+                                                <Button appearance="secondary">Cancel</Button>
+                                            </DialogTrigger>
+                                            <Button appearance="primary" onClick={() => handleDelete(product.id)}>Delete</Button>
+                                        </DialogActions>
+                                        </DialogBody>
+                                    </DialogSurface>
+                                </Dialog>
                             </TableCell>
                             <TableCell>
                                 <TableCellLayout media={getProductIcon(product.productType)}>
