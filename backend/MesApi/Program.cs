@@ -31,4 +31,14 @@ app.MapGet("/api/products", (ApplicationDbContext context) =>
 .WithName("GetProducts")
 .WithOpenApi();
 
+app.MapPost("/api/products", (ApplicationDbContext context, Product product) =>
+{
+    product.Created = DateTime.Now;
+    context.Products.Add(product);
+    context.SaveChanges();
+    return Results.Created($"/api/products/{product.Id}", product);
+})
+.WithName("CreateProduct")
+.WithOpenApi();
+
 app.Run();
