@@ -1,4 +1,4 @@
-import { JSX, useEffect, useState } from "react";
+import { FormEvent, JSX, useEffect, useState } from "react";
 import {
     PhoneRegular,
     TabletRegular,
@@ -6,7 +6,9 @@ import {
     SurfaceEarbudsRegular,
     DeviceMeetingRoomRegular,
     EditRegular,
-    MoreHorizontalRegular
+    MoreHorizontalRegular,
+    AddRegular,
+    CameraRegular
 } from "@fluentui/react-icons";
 import {
     TableBody,
@@ -17,12 +19,38 @@ import {
     TableHeaderCell,
     TableCellLayout, Badge,
     TableCellActions,
-    Button
+    Button,
+    Dialog,
+    DialogSurface,
+    DialogBody,
+    DialogActions,
+    DialogTrigger,
+    DialogContent,
+    DialogTitle,
+    Label,
+    Input,
+    makeStyles,
+    Combobox,
+    Option
 } from "@fluentui/react-components";
 import type { JSXElement } from "@fluentui/react-components";
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import { Product, ProductStatus, getProductStatusColor, ProductType } from "./helper";
+import './ComponentToEdit.css';
+
+const useStyles = makeStyles({
+    dialogContent: {
+        marginTop: "16px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "6px"
+    },
+
+    topMargin: {
+        marginTop: "8px"
+    }
+});
 
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US')
@@ -37,6 +65,8 @@ const getProductIcon = (productType: ProductType): JSX.Element => {
             return <SmartwatchRegular />;
         case ProductType.Earbuds:
             return <SurfaceEarbudsRegular />;
+        case ProductType.Webcam:
+            return <CameraRegular />;
         default:
             return <DeviceMeetingRoomRegular />;
     }
@@ -51,21 +81,129 @@ const columns = [
 ];
 
 export const ComponentToEdit = (): JSXElement => {
+    const styles = useStyles(); 
+
     const [items, setItems] = useState<Product[]>([]);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const [name, setName] = useState('');
+    const [productType, setProductType] = useState<ProductType>(ProductType.Phone);
+    const [description, setDescription] = useState('');
+    const [status, setStatus] = useState<ProductStatus>(ProductStatus.InProgress);
+
+    const fetchData = async () => {
+        const response = await fetch('http://localhost:5000/api/products')
+        setItems(await response.json());
+    }
 
     useEffect(() => {
-        const fetchData = async () => {
-            const response = await fetch('http://localhost:5000/api/products')
-
-            setItems(await response.json());
-        }
         fetchData();
-
     }, []);
+
+    const openCreateProductDialog = () => {
+        setName('');
+        setProductType(ProductType.Phone);
+        setDescription('');
+        setStatus(ProductStatus.InProgress);
+        setIsDialogOpen(true);
+    }
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+       
+        await fetch('http://localhost:5000/api/products', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, productType, description, status }),
+        });
+
+        setIsDialogOpen(false);
+        fetchData();
+    }
 
     return (
         <>
-            <div style={{ backgroundColor: "#f0f0f0", color: "#000", padding: 10 }}>Products</div>
+            <div className="products-header">
+                <div></div>
+                <div>
+                    Products
+                </div>
+                <div className="header-right">
+                    <Button icon={<AddRegular />} onClick={() => openCreateProductDialog()}>
+                        Add
+                    </Button>
+                    <Dialog open={isDialogOpen} onOpenChange={(e, data) => setIsDialogOpen(data.open)}>
+                        <DialogSurface aria-describedby={undefined}>
+                            <form onSubmit={handleSubmit}>
+                            <DialogBody>
+                                <DialogTitle>{'Add Product'}</DialogTitle>
+                                <DialogContent className={styles.dialogContent}>
+                                    <Label required htmlFor={"product-name-input"} className={styles.topMargin}>
+                                        Name
+                                    </Label>
+                                    <Input required type="text" id={"product-name-input"} value={name} onChange={(e) => setName(e.target.value)} />
+                                    
+                                    <Label htmlFor={"product-description-input"} className={styles.topMargin}>
+                                        Description
+                                    </Label>
+                                    <Input type="text" id={"product-description-input"} value={description} onChange={(e) => setDescription(e.target.value)} />
+                                    
+                                    <Label htmlFor={"product-type-select"} className={styles.topMargin}>
+                                        Type
+                                    </Label>
+                                    <Combobox placeholder="Select product type" onOptionSelect={(event, data) => {
+                                           if (data.optionValue) {
+                                                setProductType(Number(data.optionValue) as ProductType);
+                                            }
+                                        }}
+                                        value={ProductType[productType]}
+                                        id={"product-type-select"}
+                                    >
+                                        {Object.entries(ProductType)
+                                            .filter(([key]) => isNaN(Number(key)))
+                                            .map(([key, value]) => (
+                                                <Option key={key} value={String(value)} text={key}>
+                                                    {key}
+                                                </Option>
+                                            ))}
+                                    </Combobox>
+
+                                    <Label htmlFor={"product-status-select"} className={styles.topMargin}>
+                                        Status
+                                    </Label>
+                                    <Combobox placeholder="Select product status" onOptionSelect={(event, data) => {
+                                           if (data.optionValue) {
+                                                setStatus(Number(data.optionValue) as ProductStatus);
+                                            }
+                                        }}
+                                        value={ProductStatus[status]}
+                                        id={"product-status-select"}
+                                    >
+                                        {Object.entries(ProductStatus)
+                                            .filter(([key]) => isNaN(Number(key)))
+                                            .map(([key, value]) => (
+                                                <Option key={key} value={String(value)} text={key}>
+                                                    {key}
+                                                </Option>
+                                            ))}
+                                    </Combobox>
+                                </DialogContent>
+                                <DialogActions className={styles.topMargin}>
+                                    <DialogTrigger disableButtonEnhancement>
+                                        <Button appearance="secondary">Cancel</Button>
+                                    </DialogTrigger>
+                                    <Button type="submit" appearance="primary">
+                                        Add
+                                    </Button>
+                                </DialogActions>
+                            </DialogBody>
+                            </form>
+                        </DialogSurface>
+                    </Dialog>
+                </div>
+            </div>
             <Table arial-label="Default table" style={{ minWidth: "510px" }}>
                 <TableHeader>
                     <TableRow>
