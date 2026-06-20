@@ -2,7 +2,8 @@ export enum ProductType {
     Phone,
     Tablet,
     Watch,
-    Earbuds
+    Earbuds,
+    Webcam
 }
 
 export enum ProductStatus {
