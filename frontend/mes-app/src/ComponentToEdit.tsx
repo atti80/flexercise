@@ -85,6 +85,7 @@ export const ComponentToEdit = (): JSXElement => {
 
     const [items, setItems] = useState<Product[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [product, setProduct] = useState<Product | null>(null);
 
     const [name, setName] = useState('');
     const [productType, setProductType] = useState<ProductType>(ProductType.Phone);
@@ -101,6 +102,7 @@ export const ComponentToEdit = (): JSXElement => {
     }, []);
 
     const openCreateProductDialog = () => {
+        setProduct(null);
         setName('');
         setProductType(ProductType.Phone);
         setDescription('');
@@ -108,17 +110,27 @@ export const ComponentToEdit = (): JSXElement => {
         setIsDialogOpen(true);
     }
 
+    const openEditProductDialog = (product: Product) => {
+        setProduct(product);
+        setName(product.name);
+        setProductType(product.productType);
+        setDescription(product.description);
+        setStatus(product.status);
+        setIsDialogOpen(true);
+    }
+
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
        
-        await fetch('http://localhost:5000/api/products', {
-            method: 'POST',
+        await fetch('http://localhost:5000/api/products' + (product ? `/${product.id}` : ''), {
+            method: product ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ name, productType, description, status }),
         });
 
+        setProduct(null);
         setIsDialogOpen(false);
         fetchData();
     }
@@ -138,7 +150,7 @@ export const ComponentToEdit = (): JSXElement => {
                         <DialogSurface aria-describedby={undefined}>
                             <form onSubmit={handleSubmit}>
                             <DialogBody>
-                                <DialogTitle>{'Add Product'}</DialogTitle>
+                                <DialogTitle>{product ? 'Edit Product' : 'Add Product'}</DialogTitle>
                                 <DialogContent className={styles.dialogContent}>
                                     <Label required htmlFor={"product-name-input"} className={styles.topMargin}>
                                         Name
@@ -195,7 +207,7 @@ export const ComponentToEdit = (): JSXElement => {
                                         <Button appearance="secondary">Cancel</Button>
                                     </DialogTrigger>
                                     <Button type="submit" appearance="primary">
-                                        Add
+                                        {product ? 'Update' : 'Add'}
                                     </Button>
                                 </DialogActions>
                             </DialogBody>
@@ -226,6 +238,7 @@ export const ComponentToEdit = (): JSXElement => {
                                         icon={<EditRegular />}
                                         appearance="subtle"
                                         aria-label="Edit"
+                                        onClick={() => { openEditProductDialog(product); }}
                                     />
                                     <Button
                                         icon={<MoreHorizontalRegular />}
