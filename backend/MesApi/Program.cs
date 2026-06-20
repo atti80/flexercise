@@ -78,4 +78,17 @@ app.MapPut("/api/products/{id}", (int id, Product updatedProduct, ApplicationDbC
 .WithName("UpdateProduct")
 .WithOpenApi();
 
+app.MapDelete("/api/products/{id}", (int id, ApplicationDbContext context) =>
+{
+    var product = context.Products.Find(id);
+    if (product is null) return Results.NotFound();
+
+    context.Products.Remove(product);
+    context.SaveChanges();
+
+    return Results.NoContent();
+})
+.WithName("DeleteProduct")
+.WithOpenApi();
+
 app.Run();
