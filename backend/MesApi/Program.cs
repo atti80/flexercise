@@ -41,4 +41,41 @@ app.MapPost("/api/products", (ApplicationDbContext context, Product product) =>
 .WithName("CreateProduct")
 .WithOpenApi();
 
+app.MapPut("/api/products/{id}", (int id, Product updatedProduct, ApplicationDbContext context) =>
+{
+    var product = context.Products.Find(id);
+    if (product is null) return Results.NotFound();
+
+    var changes = new List<string>();
+
+    if (product.Name != updatedProduct.Name)
+        changes.Add($"Name: {product.Name}");
+
+    if (product.Description != updatedProduct.Description)
+        changes.Add($"Description: {product.Description}");
+
+    if (product.ProductType != updatedProduct.ProductType)
+        changes.Add($"ProductType: {product.ProductType}");
+
+    if (product.Status != updatedProduct.Status)
+        changes.Add($"Status: {product.Status}");
+
+    product.Name = updatedProduct.Name;
+    product.Description = updatedProduct.Description;
+    product.ProductType = updatedProduct.ProductType;
+    product.Status = updatedProduct.Status;
+
+    if (changes.Count > 0)
+    {
+        product.ModifiedTime = DateTime.Now;
+        product.LastUpdate = string.Join(", ", changes);
+    }
+
+    context.SaveChanges();
+
+    return Results.Ok(product);
+})
+.WithName("UpdateProduct")
+.WithOpenApi();
+
 app.Run();
