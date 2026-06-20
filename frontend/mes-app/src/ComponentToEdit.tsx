@@ -138,7 +138,9 @@ export const ComponentToEdit = (): JSXElement => {
     return (
         <>
             <div className="products-header">
-                <div></div>
+                <div className="header-left">
+                    <img src="logo192.png" alt="logo"/>
+                </div>
                 <div>
                     Products
                 </div>

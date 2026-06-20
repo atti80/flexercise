@@ -12,3 +12,12 @@
     display: flex;
     justify-content: flex-end;
 }
+
+.header-left {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.header-left img {
+    width: 30px;
+}
