@@ -1,0 +1,37 @@
+{
+    "name": "mes-app",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@fluentui/react-components": "^9.72.9",
+        "@types/node": "^16.7.13",
+        "@types/react": "^19.0.0",
+        "@types/react-dom": "^19.0.0",
+        "javascript-time-ago": "^2.5.12",
+        "react": "^19.2.3",
+        "react-dom": "^19.2.3",
+        "react-scripts": "5.0.1",
+        "typescript": "^4.4.2"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
+}

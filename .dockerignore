@@ -1,0 +1,9 @@
+.devcontainer
+.vscode
+Dockerfile
+compose.yml
+*/*/bin
+*/*/obj
+*/*/node_modules
+*/*/dist
+*/*/build
