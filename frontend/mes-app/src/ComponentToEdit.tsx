@@ -126,6 +126,11 @@ export const ComponentToEdit = (): JSXElement => {
         setIsProductDialogOpen(true);
     }
 
+    const openDeleteProductDialog = (product: Product) => {
+        setProduct(product);
+        setIsDeleteDialogOpen(true);
+    }
+
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
        
@@ -147,8 +152,11 @@ export const ComponentToEdit = (): JSXElement => {
         await fetchData();
     }
 
-    const handleDelete = async (productId: number) => {
-        const response = await fetch(`http://localhost:5000/api/products/${productId}`, { method: 'DELETE' });
+    const handleDelete = async () => {
+        if (!product)
+            return;
+        
+        const response = await fetch(`http://localhost:5000/api/products/${product.id}`, { method: 'DELETE' });
 
         if (!response.ok) {
             console.error('Failed to delete product');
@@ -156,6 +164,7 @@ export const ComponentToEdit = (): JSXElement => {
         }
 
         setIsDeleteDialogOpen(false);
+        setProduct(null);
         await fetchData();
     }
 
@@ -287,29 +296,11 @@ export const ComponentToEdit = (): JSXElement => {
                                         <MenuPopover>
                                             <MenuList>
                                                 <MenuItem icon={<EditRegular />} onClick={() => openEditProductDialog(product)}>Edit</MenuItem>
-                                                <MenuItem icon={<DeleteRegular />} onClick={() => setIsDeleteDialogOpen(true)}>Delete</MenuItem>
+                                                <MenuItem icon={<DeleteRegular />} onClick={() => openDeleteProductDialog(product)}>Delete</MenuItem>
                                             </MenuList>
                                         </MenuPopover>
                                     </Menu>
                                 </TableCellActions>
-                                <Dialog open={isDeleteDialogOpen} onOpenChange={(e, data) => setIsDeleteDialogOpen(data.open)}>
-                                    <DialogSurface>
-                                        <DialogBody>
-                                        <DialogTitle>
-                                            Delete Product
-                                        </DialogTitle>
-                                        <DialogContent>
-                                            Are you sure you want to delete this product?
-                                        </DialogContent>
-                                        <DialogActions>
-                                            <DialogTrigger disableButtonEnhancement>
-                                                <Button appearance="secondary">Cancel</Button>
-                                            </DialogTrigger>
-                                            <Button appearance="primary" onClick={() => handleDelete(product.id)}>Delete</Button>
-                                        </DialogActions>
-                                        </DialogBody>
-                                    </DialogSurface>
-                                </Dialog>
                             </TableCell>
                             <TableCell>
                                 <TableCellLayout media={getProductIcon(product.productType)}>
@@ -335,6 +326,24 @@ export const ComponentToEdit = (): JSXElement => {
                     ))}
                 </TableBody>
             </Table>
+            <Dialog open={isDeleteDialogOpen} onOpenChange={(e, data) => setIsDeleteDialogOpen(data.open)}>
+                <DialogSurface>
+                    <DialogBody>
+                    <DialogTitle>
+                        Delete Product
+                    </DialogTitle>
+                    <DialogContent>
+                        Are you sure you want to delete this product?
+                    </DialogContent>
+                    <DialogActions>
+                        <DialogTrigger disableButtonEnhancement>
+                            <Button appearance="secondary">Cancel</Button>
+                        </DialogTrigger>
+                        <Button appearance="primary" onClick={handleDelete}>Delete</Button>
+                    </DialogActions>
+                    </DialogBody>
+                </DialogSurface>
+            </Dialog>
             <footer className={styles.footer}>
                 {formatDateYYYYMMDD(new Date())}
             </footer>
