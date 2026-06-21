@@ -14,16 +14,15 @@ export const useStyles = makeStyles({
     headerRight: {
         display: "flex",
         justifyContent: "flex-end",
-        gap: "20px"
+        gap: "20px",
+        "& img": {
+            width: "30px",
+        },
     },
 
     headerLeft: {
         display: "flex",
         justifyContent: "flex-start",
-        
-        "& img": {
-            width: "30px",
-        },
     },
 
     addButton: {

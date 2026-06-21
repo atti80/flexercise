@@ -190,15 +190,7 @@ export const ComponentToEdit = (): JSXElement => {
         <>
             <div className={styles.productsHeader}>
                 <div className={styles.headerLeft}>
-                    <img src="logo192.png" alt="logo"/>
-                </div>
-                <div>
-                    Products
-                </div>
-                <div className={styles.headerRight}>
-                    <Button className={styles.addButton} icon={<AddRegular />} onClick={() => openCreateProductDialog()}>
-                        <span className={styles.addButtonText}>Add</span>
-                    </Button>
+                    <Button icon={<AddRegular />} onClick={() => openCreateProductDialog()}>Add</Button>
                     <Dialog open={isProductDialogOpen} onOpenChange={(e, data) => setIsProductDialogOpen(data.open)}>
                         <DialogSurface className={styles.productDialog} aria-describedby={undefined}>
                             <form onSubmit={handleSubmit}>
@@ -267,6 +259,12 @@ export const ComponentToEdit = (): JSXElement => {
                             </form>
                         </DialogSurface>
                     </Dialog>
+                </div>
+                <div>
+                    Products
+                </div>
+                <div className={styles.headerRight}>
+                    <img src="logo192.png" alt="logo"/>
                     <div className={styles.searchContainer}>
                         <SearchBox onChange={onSearchInputChanged} onKeyDown={onSearchInputKeydown} className={styles.searchBox} />
                         <Button className={styles.searchButton} onClick={handleSearch}>Search</Button>
