@@ -30,7 +30,6 @@ import {
     DialogTitle,
     Label,
     Input,
-    makeStyles,
     Combobox,
     Option,
     Menu,
@@ -44,27 +43,17 @@ import type { InputOnChangeData, JSXElement, SearchBoxChangeEvent } from "@fluen
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import { Product, ProductStatus, getProductStatusColor, ProductType } from "./helper";
-import './ComponentToEdit.css';
-
-const useStyles = makeStyles({
-    dialogContent: {
-        marginTop: "16px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "6px"
-    },
-
-    searchBox: {
-        width: "200px"
-    },
-
-    topMargin: {
-        marginTop: "8px"
-    }
-});
+import { useStyles } from "./ComponentToEdit.styles";
 
 TimeAgo.addDefaultLocale(en)
 const timeAgo = new TimeAgo('en-US')
+
+const formatDateYYYYMMDD = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+};
 
 const getProductIcon = (productType: ProductType): JSX.Element => {
     switch (productType) {
@@ -184,19 +173,19 @@ export const ComponentToEdit = (): JSXElement => {
 
     return (
         <>
-            <div className="products-header">
-                <div className="header-left">
+            <div className={styles.productsHeader}>
+                <div className={styles.headerLeft}>
                     <img src="logo192.png" alt="logo"/>
                 </div>
                 <div>
                     Products
                 </div>
-                <div className="header-right">
+                <div className={styles.headerRight}>
                     <Button icon={<AddRegular />} onClick={() => openCreateProductDialog()}>
                         Add
                     </Button>
                     <Dialog open={isProductDialogOpen} onOpenChange={(e, data) => setIsProductDialogOpen(data.open)}>
-                        <DialogSurface aria-describedby={undefined}>
+                        <DialogSurface className={styles.productDialog} aria-describedby={undefined}>
                             <form onSubmit={handleSubmit}>
                             <DialogBody>
                                 <DialogTitle>{product ? 'Edit Product' : 'Add Product'}</DialogTitle>
@@ -263,7 +252,7 @@ export const ComponentToEdit = (): JSXElement => {
                             </form>
                         </DialogSurface>
                     </Dialog>
-                    <div className="search-container">
+                    <div className={styles.searchContainer}>
                         <SearchBox onChange={OnSearchInputChanged} className={styles.searchBox} />
                         <Button onClick={handleSearch}>Search</Button>
                     </div>
@@ -346,6 +335,9 @@ export const ComponentToEdit = (): JSXElement => {
                     ))}
                 </TableBody>
             </Table>
+            <footer className={styles.footer}>
+                {formatDateYYYYMMDD(new Date())}
+            </footer>
         </>
     );
 };
