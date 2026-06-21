@@ -26,9 +26,39 @@ export const useStyles = makeStyles({
         },
     },
 
+    addButton: {
+        minWidth: "auto",
+        "@media (max-width: 1024px)": {
+            paddingLeft: "4px",
+            paddingRight: "4px",
+        },
+        "& span": {
+            margin: "0px",
+        }
+    },
+
+    addButtonText: {
+        "@media (max-width: 1024px)": {
+            display: "none"
+        },
+    },
+
     searchContainer: {
         display: "flex",
         gap: "4px"
+    },
+
+    searchButton: {
+        "@media (max-width: 1024px)": {
+            display: "none"
+        },
+    },
+
+    searchBox: {
+        width: "200px",
+        "@media (max-width: 640px)": {
+            width: "120px",
+        },
     },
 
     productDialog: {
@@ -40,10 +70,6 @@ export const useStyles = makeStyles({
         display: "flex",
         flexDirection: "column",
         gap: "6px"
-    },
-
-    searchBox: {
-        width: "200px"
     },
 
     topMargin: {

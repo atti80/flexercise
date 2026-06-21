@@ -196,8 +196,8 @@ export const ComponentToEdit = (): JSXElement => {
                     Products
                 </div>
                 <div className={styles.headerRight}>
-                    <Button icon={<AddRegular />} onClick={() => openCreateProductDialog()}>
-                        Add
+                    <Button className={styles.addButton} icon={<AddRegular />} onClick={() => openCreateProductDialog()}>
+                        <span className={styles.addButtonText}>Add</span>
                     </Button>
                     <Dialog open={isProductDialogOpen} onOpenChange={(e, data) => setIsProductDialogOpen(data.open)}>
                         <DialogSurface className={styles.productDialog} aria-describedby={undefined}>
@@ -269,7 +269,7 @@ export const ComponentToEdit = (): JSXElement => {
                     </Dialog>
                     <div className={styles.searchContainer}>
                         <SearchBox onChange={onSearchInputChanged} onKeyDown={onSearchInputKeydown} className={styles.searchBox} />
-                        <Button onClick={handleSearch}>Search</Button>
+                        <Button className={styles.searchButton} onClick={handleSearch}>Search</Button>
                     </div>
                 </div>
             </div>
