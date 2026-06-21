@@ -155,7 +155,7 @@ export const ComponentToEdit = (): JSXElement => {
     const handleDelete = async () => {
         if (!product)
             return;
-        
+
         const response = await fetch(`http://localhost:5000/api/products/${product.id}`, { method: 'DELETE' });
 
         if (!response.ok) {
@@ -168,10 +168,16 @@ export const ComponentToEdit = (): JSXElement => {
         await fetchData();
     }
 
-    const OnSearchInputChanged = (event: SearchBoxChangeEvent, data: InputOnChangeData) => {
+    const onSearchInputChanged = (event: SearchBoxChangeEvent, data: InputOnChangeData) => {
         setSearchText(data.value);
         if (!data.value)
             setFilteredItems(items);
+    }
+
+    const onSearchInputKeydown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "Enter") {
+            handleSearch();
+        }
     }
 
     const handleSearch = () => {
@@ -262,7 +268,7 @@ export const ComponentToEdit = (): JSXElement => {
                         </DialogSurface>
                     </Dialog>
                     <div className={styles.searchContainer}>
-                        <SearchBox onChange={OnSearchInputChanged} className={styles.searchBox} />
+                        <SearchBox onChange={onSearchInputChanged} onKeyDown={onSearchInputKeydown} className={styles.searchBox} />
                         <Button onClick={handleSearch}>Search</Button>
                     </div>
                 </div>
