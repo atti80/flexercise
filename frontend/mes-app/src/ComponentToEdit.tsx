@@ -38,8 +38,9 @@ import {
     MenuList,
     MenuItem,
     MenuPopover,
+    SearchBox
 } from "@fluentui/react-components";
-import type { JSXElement } from "@fluentui/react-components";
+import type { InputOnChangeData, JSXElement, SearchBoxChangeEvent } from "@fluentui/react-components";
 import TimeAgo from 'javascript-time-ago';
 import en from 'javascript-time-ago/locale/en';
 import { Product, ProductStatus, getProductStatusColor, ProductType } from "./helper";
@@ -51,6 +52,10 @@ const useStyles = makeStyles({
         display: "flex",
         flexDirection: "column",
         gap: "6px"
+    },
+
+    searchBox: {
+        width: "200px"
     },
 
     topMargin: {
@@ -90,6 +95,8 @@ export const ComponentToEdit = (): JSXElement => {
     const styles = useStyles(); 
 
     const [items, setItems] = useState<Product[]>([]);
+    const [filteredItems, setFilteredItems] = useState<Product[]>([]);
+
     const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [product, setProduct] = useState<Product | null>(null);
@@ -99,9 +106,13 @@ export const ComponentToEdit = (): JSXElement => {
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState<ProductStatus>(ProductStatus.InProgress);
 
+    const [searchText, setSearchText] = useState('');
+
     const fetchData = async () => {
         const response = await fetch('http://localhost:5000/api/products')
-        setItems(await response.json());
+        const jsonResult = await response.json();
+        setItems(jsonResult);
+        setFilteredItems(jsonResult);
     }
 
     useEffect(() => {
@@ -157,6 +168,18 @@ export const ComponentToEdit = (): JSXElement => {
 
         setIsDeleteDialogOpen(false);
         await fetchData();
+    }
+
+    const OnSearchInputChanged = (event: SearchBoxChangeEvent, data: InputOnChangeData) => {
+        setSearchText(data.value);
+        if (!data.value)
+            setFilteredItems(items);
+    }
+
+    const handleSearch = () => {
+        setFilteredItems(items.filter((product: Product)  => 
+            (product.name.toLowerCase().includes(searchText.toLowerCase()) || product.description?.toLowerCase().includes(searchText.toLowerCase())
+        )));
     }
 
     return (
@@ -240,6 +263,10 @@ export const ComponentToEdit = (): JSXElement => {
                             </form>
                         </DialogSurface>
                     </Dialog>
+                    <div className="search-container">
+                        <SearchBox onChange={OnSearchInputChanged} className={styles.searchBox} />
+                        <Button onClick={handleSearch}>Search</Button>
+                    </div>
                 </div>
             </div>
             <Table arial-label="Default table" style={{ minWidth: "510px" }}>
@@ -253,7 +280,7 @@ export const ComponentToEdit = (): JSXElement => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {items.map((product: Product) => (
+                    {filteredItems.map((product: Product) => (
                         <TableRow key={product.id}>
                             <TableCell>
                                 <TableCellLayout>

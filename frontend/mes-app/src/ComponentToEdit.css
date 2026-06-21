@@ -11,6 +11,7 @@
 .header-right {
     display: flex;
     justify-content: flex-end;
+    gap: 20px;
 }
 
 .header-left {
@@ -20,4 +21,9 @@
 
 .header-left img {
     width: 30px;
+}
+
+.search-container {
+    display: flex;
+    gap: 4px;
 }
